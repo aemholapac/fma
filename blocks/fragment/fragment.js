@@ -45,11 +45,23 @@ export async function loadFragment(path) {
 export default async function decorate(block) {
   const link = block.querySelector('a');
   const path = link ? link.getAttribute('href') : block.textContent.trim();
+
+  // Extract variant classes from block (all classes except 'fragment' and 'block')
+  const variantClasses = [...block.classList].filter(
+    (className) => className !== 'fragment' && className !== 'block',
+  );
+
   const fragment = await loadFragment(path);
   if (fragment) {
     const fragmentSection = fragment.querySelector(':scope .section');
     if (fragmentSection) {
       block.closest('.section').classList.add(...fragmentSection.classList);
+
+      // Add variant classes to the fragment section before replacing
+      if (variantClasses.length > 0) {
+        fragmentSection.classList.add(...variantClasses);
+      }
+
       block.closest('.fragment').replaceWith(...fragment.childNodes);
     }
   }
